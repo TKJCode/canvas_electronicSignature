@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>canvas移动端签名</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        #canvas {
+            background-color: #f0f0f0;
+            border: 2px solid #333;
+            display: block;
+            margin: 10px auto;
+        }
+        .btn button {
+            width: 100px;
+            height: 40px;
+            display: block;
+            margin-left: 240px;
+            margin-top: 10px;
+        }
+        .canvas_img {
+            display: block;
+            height: 150px;
+            width: 300px;
+            border: 2px dashed #999;
+            margin: 10px auto;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <canvas id="canvas">该浏览器不支持canvas标签</canvas>
+    </div>
+    <div class="btn">
+        <button class="btn_clear">清空</button>
+        <button class="btn_save">保存签名</button>
+        <button class="btn_change">更换随机画笔</button>
+    </div>
+    <img src="" alt="" class="canvas_img">
+</body>
+<script>
+    window.onload = function() {
+        // 获取画布
+        let canvas = document.querySelector("#canvas");
+
+        // 获取画布的上下文对象
+        let ctx = canvas.getContext("2d");
+
+        // 记录手指开始按下时的坐标
+        let startX = 0;
+        let startY = 0;
+        // 记录手指按下后移动时的坐标
+        let moveX = 0;
+        let moveY = 0;
+        // 记录手指移动完成后松开时的坐标
+        let endX = 0;
+        let endY = 0;
+
+        // 记录画布的上边距和左边距
+        let canvas_top = canvas.offsetTop;
+        let canvas_left = canvas.offsetLeft;
+
+        // 绑定事件
+        // 手指按下事件
+        canvas.addEventListener("touchstart", function(event) {
+            // 手指开始按下时的坐标等于手指触摸点获取到的值 - canvas画布相对于 body的边距
+            startX = event.touches[0].pageX - canvas_left;
+            startY = event.touches[0].pageY - canvas_top;
+            // console.log(startX);
+            // console.log(startY);
+
+            // 开始绘画
+            ctx.beginPath();
+            // 画笔的起始点
+            ctx.moveTo(startX, startY);
+            // 调整样式
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.shadowBlur = 1;
+            ctx.shadowColor = "#000";
+        })
+
+        // 手指移动事件
+        canvas.addEventListener("touchmove", function(event) {
+            // 手指按下后移动时的坐标等于手指触摸点获取到的值 - canvas画布相对于 body的边距
+            moveX = event.touches[0].pageX - canvas_left;
+            moveY = event.touches[0].pageY - canvas_top;
+            // console.log(moveX);
+            // console.log(moveY);
+
+            // 绘画移动路径
+            ctx.lineTo(moveX, moveY);
+            // 立即渲染路径
+            ctx.stroke();
+        })
+
+        // 手指松开事件
+        canvas.addEventListener("touchend", function(event) {
+            // 手指按下后移动时的坐标等于手指触摸点获取到的值 - canvas画布相对于 body的边距
+            endX = event.changedTouches[0].pageX - canvas_left;
+            endY = event.changedTouches[0].pageY - canvas_top;
+
+            // 创建从开始到移动结束的路径
+            ctx.closePath();
+        })
+
+        // 点击 "清空" 按钮清空画布
+        let btnClear = document.querySelector(".btn_clear");
+        btnClear.onclick = function() {
+            ctx.clearRect(0, 0, 304, 154);
+        }
+
+        // 点击 "保存" 按钮保存图案
+        let btnSave = document.querySelector(".btn_save");
+        let canvasImg = document.querySelector(".canvas_img")
+        btnSave.onclick = function() {
+            canvasImg.src = canvas.toDataURL("image/png");
+        }
+        
+        // 获取随机画笔颜色
+        function getRandomColor() {
+            let r = Math.floor(Math.random() * 256);
+            let g = Math.floor(Math.random() * 256);
+            let b = Math.floor(Math.random() * 256);
+
+            return "rgb(" + r + "," + g + "," + b + ")";
+        }
+        // let rgb = getRandomColor();
+        // console.log(rgb)
+
+        // 获取随机画笔大小
+        function getRandomSize() {
+            return Math.floor(Math.random() * 11);
+        }
+
+        // 点击 "更换随机画笔"
+        let btnChange = document.querySelector(".btn_change");
+        btnChange.onclick = function() {
+            ctx.lineWidth = getRandomSize();
+            ctx.strokeStyle = getRandomColor();
+        }
+    }
+</script>
+</html>
